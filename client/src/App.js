@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { BrowserRouter as Route } from "react-router-dom";
+import { BrowserRouter as Route, Switch } from "react-router-dom";
 import { useHistory } from 'react-router-dom';
 import { axiosWithAuth } from './utils/axioswithAuth'
 
 import Login from "./components/Login";
+import PrivateRoute from './components/PrivateRoute'
+import BubblePage from './components/BubblePage'
 import "./styles.scss";
 
 
@@ -16,7 +18,7 @@ function App() {
 
   const [ login, setLogin ] = useState(initalLogin);
   
-  let history = useHistory();
+  const history = useHistory();
 
   const onInputChange = evt => {
     const name = evt.target.name
@@ -34,21 +36,21 @@ function App() {
             .post('/api/login', login)
             .then(res =>
                 window.localStorage.setItem('token', res.data.payload),
-                history.push('/'))
+                history.push('/bubbles'))
             .catch(err => console.log(err))  
       };
 
   return (
     
       <div className="App">
-        <Route exact path="/" component={Login}>
-          <Login login={login} onInputChange={onInputChange} authenticate={authenticate} />
-        </Route>
 
-        {/* 
-          Build a PrivateRoute component that will 
-          display BubblePage when you're authenticated 
-        */}
+      <Switch>
+          <Route exact path="/login" component={Login}>
+            <Login login={login} onInputChange={onInputChange} authenticate={authenticate} />
+          </Route>
+
+        <PrivateRoute path="/bubbles" component={BubblePage} />
+      </Switch>
       </div>
     
   );
